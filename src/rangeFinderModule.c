@@ -45,10 +45,9 @@ static PyObject* get_range(PyObject *self, PyObject *args)
 
 static int _get_range(int count)
 {
-  if(setupRun!=1)
-    exit(-1);
   int average = 0;
   int j;
+  int goodReads = 0;
   for(j = 0; j < count; j++)
   {
     digitalWrite(Trig,0);
@@ -88,8 +87,11 @@ static int _get_range(int count)
     while(micros() - before < 60)
       delayMicroseconds(1);
     average += range;
+    goodReads += 1;
   }
-  return average / count;
+  if(goodReads == 0)
+    return -1;
+  return average / goodReads;
 }
 
 static PyMethodDef rangeFinderMethods[] =
