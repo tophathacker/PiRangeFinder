@@ -10,30 +10,54 @@
 static int _pauseMe(long unsigned int time);
 
 // pin defines
-const int ClockPin = 0;
-const int DataPin = 1;
-const int DumpPin = 2;
-const int inputX = 7;
-const int inputY = 6;
+const int Trig = 7;
+const int Echo = 6;
 
 static PyObject* setup_pins(PyObject* self, PyObject* args)
 {
   if(wiringPiSetup() == -1)
     exit(1);
 
-  Py_RETURN_NONE;
-}
+  pinMode(Trig, OUTPUT);
+  digitalWrite(Trig,0);
+  pinMode(Echo, INPUT);
 
-static int _pauseMe(long unsigned int time)
-{
-  int i;
-  for(i=0; i<time; i++);
-  return 0;
+  Py_RETURN_NONE;
 }
 
 static PyObject* get_range(PyObject *self, PyObject *args)
 {
-  return Py_BuildValue("i",20);
+  /*
+  digitalWrite(Trig,0);
+  delayMicroseconds(10);
+  digitalWrite(Trig,1);
+  delayMicroseconds(10);
+  digitalWrite(Trig,0);
+
+  int range = micro();
+  */
+  unsigned long top = 0;
+  struct timeval  tv;
+  int i;
+  for(i = 0; i < 50; i++)
+  {
+    gettimeofday(&tv,NULL);
+    unsigned long temp = tv.tv_usec;
+    if(temp > top)
+    {
+      top = temp;
+    }
+  }
+  int a,b;
+  gettimeofday(&tv,NULL);
+  a = tv.tv_usec;
+  delayMicroseconds(10);
+  gettimeofday(&tv,NULL);
+  b = tv.tv_usec;
+  if(b < a)
+    b+=1000000;
+  
+  return Py_BuildValue("l",b - a);
 }
 
 static PyMethodDef rangeFinderMethods[] =
