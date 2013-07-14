@@ -2,7 +2,9 @@
 
 import rangeFinder
 
-for x in range(0,10000000):
-  temp = rangeFinder.get_range()
-  if temp > 2000:
-    print temp
+rangeFinder.setup_pins()
+
+total = 0
+for x in range(0,1000):
+  total += rangeFinder.get_range()
+print total/1000

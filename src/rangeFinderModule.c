@@ -10,13 +10,17 @@
 static int _pauseMe(long unsigned int time);
 
 // pin defines
-const int Trig = 7;
-const int Echo = 6;
+const int Trig = 4;
+const int Echo = 5;
+
+static int setupRun = 0;
 
 static PyObject* setup_pins(PyObject* self, PyObject* args)
 {
   if(wiringPiSetup() == -1)
-    exit(1);
+    exit(-1);
+
+  setupRun = 1;
 
   pinMode(Trig, OUTPUT);
   digitalWrite(Trig,0);
@@ -27,15 +31,25 @@ static PyObject* setup_pins(PyObject* self, PyObject* args)
 
 static PyObject* get_range(PyObject *self, PyObject *args)
 {
-  /*
+  if(setupRun!=1)
+    exit(-1);
   digitalWrite(Trig,0);
   delayMicroseconds(10);
   digitalWrite(Trig,1);
   delayMicroseconds(10);
   digitalWrite(Trig,0);
 
-  int range = micro();
-  */
+  while(!digitalRead(Echo))
+  {
+    //do nothing
+  }
+  int start = micros();
+  while(digitalRead(Echo))
+  {
+    //do nothing
+  }
+  int range = micros() - start;
+/*
   unsigned long top = 0;
   struct timeval  tv;
   int i;
@@ -56,8 +70,8 @@ static PyObject* get_range(PyObject *self, PyObject *args)
   b = tv.tv_usec;
   if(b < a)
     b+=1000000;
-  
-  return Py_BuildValue("l",b - a);
+  */
+  return Py_BuildValue("l",range);
 }
 
 static PyMethodDef rangeFinderMethods[] =
