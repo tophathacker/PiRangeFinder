@@ -10,8 +10,8 @@
 static int _pauseMe(long unsigned int time);
 
 // pin defines
-const int Trig = 4;
-const int Echo = 5;
+int Trig = 4;
+int Echo = 5;
 
 static int setupRun = 0;
 
@@ -20,12 +20,15 @@ static PyObject* setup_pins(PyObject* self, PyObject* args)
   if(wiringPiSetup() == -1)
     exit(-1);
 
-  setupRun = 1;
+  if(!PyArg_ParseTuple(args,"ii",&Trig,&Echo))
+    exit(-1);
+    
 
   pinMode(Trig, OUTPUT);
   digitalWrite(Trig,0);
   pinMode(Echo, INPUT);
 
+  setupRun = 1;
   Py_RETURN_NONE;
 }
 
