@@ -20,8 +20,8 @@ static PyObject* setup_pins(PyObject* self, PyObject* args)
   if(wiringPiSetup() == -1)
     exit(-1);
 
-  if(!PyArg_ParseTuple(args,"ii",&Trig,&Echo))
-    exit(-1);
+  //if(!PyArg_ParseTuple(args,"ii",&Trig,&Echo))
+  //  exit(-1);
     
 
   pinMode(Trig, OUTPUT);
@@ -42,38 +42,26 @@ static PyObject* get_range(PyObject *self, PyObject *args)
   delayMicroseconds(10);
   digitalWrite(Trig,0);
 
+  int start = micros();
+  int loopcount = 0;
   while(!digitalRead(Echo))
   {
     //do nothing
+    if(loopcount > 1000 && micros() > start + 5000)
+      return Py_BuildValue("l",-1);
+    loopcount ++;
   }
-  int start = micros();
+  start = micros();
+  loopcount = 0;
   while(digitalRead(Echo))
   {
     //do nothing
+    if(loopcount > 1000 && micros() > start + 5000)
+      return Py_BuildValue("l",-1);
+    loopcount ++;
   }
   int range = micros() - start;
-/*
-  unsigned long top = 0;
-  struct timeval  tv;
-  int i;
-  for(i = 0; i < 50; i++)
-  {
-    gettimeofday(&tv,NULL);
-    unsigned long temp = tv.tv_usec;
-    if(temp > top)
-    {
-      top = temp;
-    }
-  }
-  int a,b;
-  gettimeofday(&tv,NULL);
-  a = tv.tv_usec;
-  delayMicroseconds(10);
-  gettimeofday(&tv,NULL);
-  b = tv.tv_usec;
-  if(b < a)
-    b+=1000000;
-  */
+  
   return Py_BuildValue("l",range);
 }
 
