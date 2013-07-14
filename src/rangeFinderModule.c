@@ -42,16 +42,16 @@ static PyObject* get_range(PyObject *self, PyObject *args)
   delayMicroseconds(10);
   digitalWrite(Trig,0);
 
-  int start = micros();
+  int before = micros();
   int loopcount = 0;
   while(!digitalRead(Echo))
   {
     //do nothing
-    if(loopcount > 1000 && micros() > start + 5000)
+    if(loopcount > 1000 && micros() > before + 5000)
       return Py_BuildValue("l",-1);
     loopcount ++;
   }
-  start = micros();
+  int start = micros();
   loopcount = 0;
   while(digitalRead(Echo))
   {
@@ -61,7 +61,8 @@ static PyObject* get_range(PyObject *self, PyObject *args)
     loopcount ++;
   }
   int range = micros() - start;
-  
+  while(micros() - before < 60)
+    delayMicroseconds(1);
   return Py_BuildValue("l",range);
 }
 
